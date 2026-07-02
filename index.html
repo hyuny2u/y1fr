@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>사무비품 품평회</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<style>
+  :root{
+    --paper: #F5F5F5;
+    --paper-deep: #EEEEEE;
+    --card: #FFFFFF;
+    --ink: #003478;
+    --ink-soft: #666666;
+    --line: #DDDDDD;
+    --pine: #003478;
+    --pine-deep: #001F4D;
+    --stamp-red: #003478;
+    --gold: #0066CC;
+    --radius: 8px;
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+
+  body{
+    background:
+      repeating-linear-gradient(0deg, rgba(0,0,0,0.015) 0px, rgba(0,0,0,0.015) 1px, transparent 1px, transparent 3px),
+      var(--paper);
+    color:var(--ink);
+    font-family:'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+    padding:48px 24px 80px;
+    line-height:1.5;
+  }
+
+  .wrap{ max-width:1180px; margin:0 auto; }
+
+  /* ===== Header ===== */
+  header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    border-bottom:2px solid var(--ink);
+    padding-bottom:18px;
+    margin-bottom:8px;
+    flex-wrap:wrap;
+    gap:16px;
+  }
+  .eyebrow{
+    font-size:12px;
+    letter-spacing:0.28em;
+    color:var(--pine);
+    font-weight:600;
+    margin-bottom:10px;
+  }
+  h1{
+    font-family:'Noto Serif KR', serif;
+    font-weight:900;
+    font-size:clamp(28px,4vw,42px);
+    margin:0;
+    letter-spacing:-0.01em;
+  }
+  .meta-box{
+    text-align:right;
+    font-size:13px;
+    color:var(--ink-soft);
+    border-left:1px solid var(--line);
+    padding-left:18px;
+  }
+  .meta-box div{ margin-bottom:4px; }
+  .meta-box b{ color:var(--ink); font-weight:600; }
+  .meta-box input{
+    border:none; border-bottom:1px dashed var(--line);
+    background:transparent; font-size:13px; color:var(--ink);
+    font-family:inherit; width:150px; padding:1px 2px;
+  }
+
+  .subline{
+    display:flex; justify-content:space-between; align-items:flex-start;
+    font-size:12.5px; color:var(--ink-soft); margin:14px 0 40px;
+    flex-wrap:wrap; gap:12px;
+    padding:16px; background:#FFF8F0; border:2px solid var(--gold);
+    border-radius:8px;
+  }
+  .subline span:first-child{ flex:1; color:var(--ink); line-height:1.6; }
+  .subline .tag{
+    background:var(--pine); color:#fff; padding:3px 10px;
+    border-radius:100px; font-weight:600; font-size:11.5px; letter-spacing:0.03em;
+  }
+
+  /* ===== Cards grid ===== */
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:22px;
+    margin-bottom:52px;
+  }
+  @media (max-width:900px){ .grid{ grid-template-columns:1fr; } }
+
+  .card{
+    position:relative;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:0 0 22px;
+    box-shadow:0 2px 8px rgba(0,52,120,0.08);
+    transition:box-shadow .25s ease, transform .25s ease;
+    overflow:hidden;
+  }
+  .card.selected{
+    box-shadow:0 12px 32px rgba(0,52,120,0.18);
+    transform:translateY(-3px);
+    border-color:var(--pine);
+  }
+
+  .card-tab{
+    display:flex; align-items:center; justify-content:space-between;
+    background:var(--pine-deep); color:#F2EFE4;
+    padding:10px 18px;
+    font-family:'Noto Serif KR', serif;
+  }
+  .card-tab .letter{ font-size:20px; font-weight:700; }
+  .card-tab .label{
+    font-size:11px; letter-spacing:0.12em; color:#B9C7BF; font-weight:500;
+  }
+
+  .thumb{
+    height:150px;
+    margin:18px 18px 0;
+    border-radius:3px;
+    background:
+      repeating-linear-gradient(45deg, #E9E5D8, #E9E5D8 8px, #E2DCC9 8px, #E2DCC9 16px);
+    border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center;
+    color:var(--ink-soft);
+    font-size:12px;
+  }
+
+  .card-body{ padding:16px 18px 0; }
+
+  .link-guide{
+    background:#F0F4FF; border-left:4px solid var(--gold);
+    padding:10px 12px; margin-bottom:14px;
+    font-size:12px; color:var(--ink); font-weight:500;
+    border-radius:4px;
+  }
+
+  .vendor-name{
+    font-family:'Noto Serif KR', serif;
+    font-size:19px; font-weight:700;
+    margin:0 0 2px;
+  }
+  .vendor-name[contenteditable]:focus,
+  [contenteditable]:focus{ outline:1px dashed var(--gold); background:#FFFDF4; }
+
+  .item-name{
+    font-size:13px; color:var(--ink-soft); margin-bottom:12px;
+  }
+
+  .price-row{
+    display:flex; align-items:baseline; gap:6px;
+    margin-bottom:14px; padding-bottom:14px;
+    border-bottom:1px dashed var(--line);
+  }
+  .price{ font-size:22px; font-weight:700; font-family:'Noto Serif KR', serif; }
+  .price-unit{ font-size:12px; color:var(--ink-soft); }
+
+  .specs{ list-style:none; margin:0 0 16px; padding:0; font-size:13px; }
+  .specs li{
+    display:flex; justify-content:space-between; gap:10px;
+    padding:6px 0; border-bottom:1px solid #EFECE2;
+  }
+  .specs li span:first-child{ color:var(--ink-soft); }
+  .specs li span:last-child{ text-align:right; font-weight:500; }
+
+  .pros-cons{ display:flex; gap:10px; margin-bottom:16px; font-size:12.5px; }
+  .pros-cons div{ flex:1; }
+  .pros-cons .h{ font-weight:600; margin-bottom:4px; font-size:11.5px; letter-spacing:0.02em; }
+  .pros .h{ color:var(--pine); }
+  .cons .h{ color:var(--stamp-red); }
+  .pros-cons ul{ margin:0; padding-left:16px; }
+  .pros-cons li{ margin-bottom:2px; }
+
+  .btn-row{ display:flex; gap:8px; padding:0 18px; }
+  .btn{
+    flex:1; text-align:center; text-decoration:none;
+    font-size:16px; font-weight:600; padding:16px 12px;
+    border-radius:6px; cursor:pointer; border:2px solid var(--ink);
+    transition:all .15s ease;
+    font-family:inherit;
+  }
+  .btn-link{ background:var(--ink); color:#fff; }
+  .btn-link:hover{ background:var(--pine-deep); border-color:var(--pine-deep); }
+  .btn-select{ background:var(--pine); border-color:var(--pine); color:#fff; }
+  .btn-select:hover{ background:var(--pine-deep); }
+  .card.selected .btn-select{ background:var(--pine-deep); }
+
+  .url-note{
+    font-size:11px; color:var(--ink-soft); padding:10px 18px 0;
+    word-break:break-all;
+  }
+
+  /* stamp */
+  .stamp{
+    position:absolute; top:14px; right:14px;
+    width:76px; height:76px;
+    opacity:0; transform:scale(0.6) rotate(-18deg);
+    transition:opacity .3s ease, transform .3s ease;
+    pointer-events:none;
+  }
+  .card.selected .stamp{ opacity:0.92; transform:scale(1) rotate(-12deg); }
+
+  /* ===== Comparison table ===== */
+  .compare-head{
+    display:flex; align-items:baseline; justify-content:space-between;
+    margin-bottom:14px; flex-wrap:wrap; gap:8px;
+  }
+  .compare-head h2{
+    font-family:'Noto Serif KR', serif; font-size:20px; margin:0;
+  }
+  .compare-head .hint{ font-size:12px; color:var(--ink-soft); }
+
+  table.compare{
+    width:100%; border-collapse:collapse; background:var(--card);
+    border:1px solid var(--line); font-size:13.5px; margin-bottom:56px; border-radius:8px; overflow:hidden;
+  }
+  table.compare th, table.compare td{
+    padding:11px 14px; border-bottom:1px solid var(--line);
+    border-right:1px solid var(--line); text-align:left;
+  }
+  table.compare th:last-child, table.compare td:last-child{ border-right:none; }
+  table.compare thead th{
+    background:var(--pine-deep); color:#F2EFE4; font-weight:600;
+    font-size:12.5px; letter-spacing:0.02em;
+  }
+  table.compare tbody th{
+    background:var(--paper-deep); font-weight:600; color:var(--ink-soft);
+    white-space:nowrap; font-size:12.5px;
+  }
+  table.compare td[contenteditable]:focus{ outline:1px dashed var(--gold); background:#FFFDF4; }
+  table.compare tr:last-child td, table.compare tr:last-child th{ border-bottom:none; }
+
+  /* ===== footer / notes ===== */
+  .notes{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    padding:20px 22px; font-size:13px; color:var(--ink-soft);
+  }
+  .notes h3{
+    font-family:'Noto Serif KR', serif; font-size:14px; color:var(--ink);
+    margin:0 0 8px; font-weight:700;
+  }
+  .notes textarea{
+    width:100%; min-height:70px; border:1px dashed var(--line); border-radius:3px;
+    background:transparent; font-family:inherit; font-size:13px; color:var(--ink);
+    padding:10px; resize:vertical;
+  }
+
+  footer{
+    margin-top:40px; padding-top:16px; border-top:1px solid var(--line);
+    display:flex; justify-content:space-between; font-size:11.5px; color:var(--ink-soft);
+    flex-wrap:wrap; gap:8px;
+  }
+
+  @media print{
+    body{ padding:0; background:#fff; }
+    .btn-row, .subline .tag{ display:none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div>
+      <div class="eyebrow">OFFICE SUPPLY PROCUREMENT REVIEW</div>
+      <h1>사무비품 품평회</h1>
+    </div>
+    <div class="meta-box">
+      <div>작성회사 &nbsp;<input type="text" placeholder="행복나래"></div>
+      <div>작성부서 &nbsp;<input type="text" placeholder="반도체팀"></div>
+      <div>품평기간&nbsp;<input type="text" placeholder="7월7일~9일"></div>
+    </div>
+  </header>
+
+  <div class="subline">
+    <span><b>⚠️ 아래 각 업체의 링크를 클릭하여 제품을 꼼꼼히 확인하시고, 적극적인 참여 부탁드립니다.</b><br>&nbsp;&nbsp;- 3개 업체 중 하나를 선정하여 주시기 바랍니다. (비교 대상 3업체) </span>
+    <span class="tag">선정 대기중</span>
+  </div>
+
+  <!-- ===== VENDOR CARDS ===== -->
+  <div class="grid">
+
+    <!-- A안 -->
+    <div class="card" id="card-a">
+      <svg class="stamp" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="44" fill="none" stroke="#A8352A" stroke-width="3" stroke-dasharray="6 3"/>
+        <circle cx="50" cy="50" r="34" fill="none" stroke="#A8352A" stroke-width="1.5"/>
+        <text x="50" y="45" text-anchor="middle" font-family="'Noto Serif KR',serif" font-size="15" font-weight="700" fill="#A8352A">선정</text>
+        <text x="50" y="62" text-anchor="middle" font-family="'Noto Serif KR',serif" font-size="9" fill="#A8352A">SELECTED</text>
+      </svg>
+      <div class="card-tab">
+        <span class="letter">A업체</span>
+        <span class="label">VENDOR OPTION A</span>
+      </div>
+      <div class="card-body">
+        <div class="link-guide">📌 링크를 클릭하여 상세 제품 정보를 확인하세요</div>
+      </div>
+      <div class="btn-row">
+        <a class="btn btn-link" href="WP_A.html" target="_blank" rel="noopener" >업체 링크 열기</a>
+      </div>
+    </div>
+
+    <!-- B안 -->
+    <div class="card" id="card-b">
+      <svg class="stamp" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="44" fill="none" stroke="#A8352A" stroke-width="3" stroke-dasharray="6 3"/>
+        <circle cx="50" cy="50" r="34" fill="none" stroke="#A8352A" stroke-width="1.5"/>
+        <text x="50" y="45" text-anchor="middle" font-family="'Noto Serif KR',serif" font-size="15" font-weight="700" fill="#A8352A">선정</text>
+        <text x="50" y="62" text-anchor="middle" font-family="'Noto Serif KR',serif" font-size="9" fill="#A8352A">SELECTED</text>
+      </svg>
+      <div class="card-tab">
+        <span class="letter">B업체</span>
+        <span class="label">VENDOR OPTION B</span>
+      </div>
+      <div class="card-body">
+        <div class="link-guide">📌 링크를 클릭하여 상세 제품 정보를 확인하세요</div>
+      </div>
+      <div class="btn-row">
+        <a class="btn btn-link" href="WP_B.html" target="_blank" rel="noopener">업체 링크 열기</a>
+      </div>
+    </div>
+
+    <!-- C안 -->
+    <div class="card" id="card-c">
+      <svg class="stamp" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="44" fill="none" stroke="#A8352A" stroke-width="3" stroke-dasharray="6 3"/>
+        <circle cx="50" cy="50" r="34" fill="none" stroke="#A8352A" stroke-width="1.5"/>
+        <text x="50" y="45" text-anchor="middle" font-family="'Noto Serif KR',serif" font-size="15" font-weight="700" fill="#A8352A">선정</text>
+        <text x="50" y="62" text-anchor="middle" font-family="'Noto Serif KR',serif" font-size="9" fill="#A8352A">SELECTED</text>
+      </svg>
+      <div class="card-tab">
+        <span class="letter">C업체</span>
+        <span class="label">VENDOR OPTION C</span>
+      </div>
+      <div class="card-body">
+        <div class="link-guide">📌 링크를 클릭하여 상세 제품 정보를 확인하세요</div>
+      </div>
+      <div class="btn-row">
+        <a class="btn btn-link" href="WP_C.html" target="_blank" rel="noopener">업체 링크 열기</a>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <span>사무비품 품평회 비교표 자료</span>
+    <span>행복나래 반도체팀에서 품평회를 위한 자료입니다. </span>
+  </footer>
+
+</div>
+
+<script>
+function selectCard(id){
+  document.querySelectorAll('.card').forEach(function(c){
+    if(c.id === id){
+      c.classList.toggle('selected');
+    } else {
+      // allow single or multi selection; here we keep it single-select
+    }
+  });
+}
+</script>
+
+</body>
+</html>
