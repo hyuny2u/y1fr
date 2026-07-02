@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>PPT Long Image Viewer</title>
+  <style>
+    :root {
+      --bg: #f3f4f6;
+      --panel: #ffffff;
+      --text: #111827;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --shadow: 0 18px 45px rgba(17, 24, 39, 0.12);
+      --radius: 18px;
+      --viewer-width: min(100%, 1180px);
+      --zoom: 1;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(255,255,255,0.9), transparent 38%),
+        var(--bg);
+      color: var(--text);
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(16px);
+      background: rgba(255, 255, 255, 0.86);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .topbar {
+      width: var(--viewer-width);
+      margin: 0 auto;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .title-wrap { min-width: 0; }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(17px, 2.4vw, 24px);
+      letter-spacing: -0.04em;
+      line-height: 1.25;
+    }
+
+    .desc {
+      margin: 3px 0 0;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    button {
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--text);
+      border-radius: 999px;
+      padding: 9px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(17, 24, 39, 0.06);
+    }
+
+    button:hover { transform: translateY(-1px); }
+    button:active { transform: translateY(0); }
+
+    main {
+      width: var(--viewer-width);
+      margin: 0 auto;
+      padding: clamp(16px, 3vw, 34px) clamp(10px, 2.5vw, 22px) 70px;
+    }
+
+    .viewer-shell {
+      width: 100%;
+      overflow-x: auto;
+      padding: clamp(8px, 1.5vw, 18px);
+      background: rgba(255, 255, 255, 0.62);
+      border: 1px solid rgba(229, 231, 235, 0.9);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .image-stage {
+      width: max-content;
+      max-width: 100%;
+      margin: 0 auto;
+      transform-origin: top center;
+    }
+
+    .long-image {
+      display: block;
+      width: calc(100vw - 48px);
+      max-width: 1120px;
+      height: auto;
+      margin: 0 auto;
+      border-radius: 10px;
+      background: #fff;
+      box-shadow: 0 10px 26px rgba(17, 24, 39, 0.10);
+      transform: scale(var(--zoom));
+      transform-origin: top center;
+      transition: transform .2s ease;
+    }
+
+    .guide {
+      width: var(--viewer-width);
+      margin: 16px auto 0;
+      padding: 0 18px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+      text-align: center;
+    }
+
+    .placeholder {
+      display: grid;
+      place-items: center;
+      min-height: 72vh;
+      padding: 42px 18px;
+      text-align: center;
+      background: linear-gradient(180deg, #fff, #f9fafb);
+      border: 2px dashed #d1d5db;
+      border-radius: 14px;
+      color: var(--muted);
+    }
+
+    .placeholder strong {
+      display: block;
+      color: var(--text);
+      font-size: clamp(20px, 3vw, 32px);
+      margin-bottom: 10px;
+      letter-spacing: -0.04em;
+    }
+
+    .placeholder code {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 8px;
+      background: #eef2ff;
+      color: #3730a3;
+      font-weight: 700;
+    }
+
+    .to-top {
+      position: fixed;
+      right: max(16px, env(safe-area-inset-right));
+      bottom: max(16px, env(safe-area-inset-bottom));
+      z-index: 30;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 18px;
+    }
+
+    @media (max-width: 760px) {
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .controls {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      button {
+        flex: 1;
+        padding: 10px 8px;
+        font-size: 12px;
+      }
+
+      main {
+        padding-left: 0;
+        padding-right: 0;
+      }
+
+      .viewer-shell {
+        border-left: 0;
+        border-right: 0;
+        border-radius: 0;
+        padding: 0;
+        box-shadow: none;
+        background: transparent;
+      }
+
+      .long-image {
+        width: 100vw;
+        max-width: none;
+        border-radius: 0;
+        box-shadow: none;
+      }
+
+      .guide { padding: 0 16px; }
+    }
+
+    @media print {
+      header, .guide, .to-top { display: none; }
+      body { background: #fff; }
+      main { width: 100%; padding: 0; }
+      .viewer-shell { box-shadow: none; border: 0; padding: 0; }
+      .long-image { width: 100%; max-width: none; box-shadow: none; border-radius: 0; transform: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="topbar">
+      <div class="title-wrap">
+      </div>
+      <div class="controls" aria-label="이미지 보기 조절">
+        <button type="button" onclick="setZoom(-0.1)">축소</button>
+        <button type="button" onclick="resetZoom()">화면맞춤</button>
+        <button type="button" onclick="setZoom(0.1)">확대</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="viewer-shell" aria-label="긴 PPT 이미지 영역">
+      <div class="image-stage">
+        <!-- 파일명을 아래처럼 맞춰주세요: https://github.com/hyuny2u/y1fr/blob/main/ppt-long_A.jpg?raw=true -->
+        <img
+          class="long-image"
+          src="https://github.com/hyuny2u/y1fr/blob/main/ppt-long_A.jpg?raw=true"
+          alt="PPT 여러 페이지를 세로로 이어붙인 긴 이미지"
+          onerror="showPlaceholder()"
+        />
+      </div>
+    </section>
+
+    <p class="guide">
+    </p>
+  </main>
+
+  <button class="to-top" type="button" onclick="window.scrollTo({top:0, behavior:'smooth'})" aria-label="맨 위로 이동">↑</button>
+
+  <script>
+    let zoom = 1;
+    const root = document.documentElement;
+
+    function applyZoom() {
+      root.style.setProperty('--zoom', zoom.toFixed(2));
+      const img = document.querySelector('.long-image');
+      const stage = document.querySelector('.image-stage');
+      if (img && stage) {
+        stage.style.height = (img.offsetHeight * zoom) + 'px';
+      }
+    }
+
+    function setZoom(delta) {
+      zoom = Math.min(1.8, Math.max(0.6, zoom + delta));
+      applyZoom();
+    }
+
+    function resetZoom() {
+      zoom = 1;
+      applyZoom();
+    }
+
+    function showPlaceholder() {
+      const shell = document.querySelector('.viewer-shell');
+      shell.innerHTML = `
+        <div class="placeholder">
+          <div>
+            <strong>https://github.com/hyuny2u/y1fr/blob/main/ppt-long_A.jpg?raw=true</strong>
+            <p>HTML 파일과 같은 위치에 <code>images</code> 폴더를 만들고<br><code>https://github.com/hyuny2u/y1fr/blob/main/ppt-long_A.jpg?raw=true</code> 파일을 넣으면 자동으로 표시됩니다.</p>
+          </div>
+        </div>
+      `;
+    }
+
+    window.addEventListener('load', applyZoom);
+    window.addEventListener('resize', applyZoom);
+  </script>
+</body>
+</html>
